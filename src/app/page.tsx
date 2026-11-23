@@ -8,8 +8,11 @@ import Testimonials from "@/components/home/Testimonials";
 import FAQ from "@/components/home/FAQ";
 import CTA from "@/components/home/CTA";
 import Footer from "@/components/home/Footer";
+import { getPlans } from "@/lib/plans";
 
-export default function Home() {
+export default async function Home() {
+  const plans = await getPlans();
+
   return (
     <>
       <Navbar />
@@ -17,7 +20,7 @@ export default function Home() {
         <Hero />
         <Marquee />
         <HowItWorks />
-        <Plans />
+        <Plans plans={plans} />
         <About />
         <Testimonials />
         <FAQ />
