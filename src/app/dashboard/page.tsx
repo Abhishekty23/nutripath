@@ -56,6 +56,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
   const sp = await searchParams;
   const booked = sp.booked;
+  const isDemo = user.email === "demo-client@example.com";
   const msg = typeof sp.msg === "string" ? sp.msg : null;
   const error = typeof sp.error === "string" ? sp.error : null;
   const name = profile?.full_name || user.email?.split("@")[0] || "there";
@@ -99,6 +100,12 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">Hi {name.split(" ")[0]} 👋</h1>
         <p className="mt-2 text-slate-600">Here&apos;s an overview of your nutrition journey.</p>
       </Reveal>
+
+      {isDemo && (
+        <div className="mt-6 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-100">
+          <strong>Demo account:</strong> feel free to log weights, reschedule or cancel. Everything resets the next time someone opens the demo.
+        </div>
+      )}
 
       {(booked || msg || error) && (
         <div className="mt-6">
