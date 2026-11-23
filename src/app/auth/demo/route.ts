@@ -104,13 +104,20 @@ export async function POST(request: NextRequest) {
   try {
     const admin = createAdminClient();
     // Creates the demo user the first time, and gives us a one-time login token (no email is sent)
-    const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: DEMO_EMAIL });
+    let { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: DEMO_EMAIL });
     if (error || !data.user) throw error ?? new Error("no user");
+
+    // A brand-new demo user starts unconfirmed: confirm it, then get a fresh login token
+    if (!data.user.email_confirmed_at) {
+      await admin.auth.admin.updateUserById(data.user.id, { email_confirm: true });
+      ({ data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: DEMO_EMAIL }));
+      if (error || !data.user) throw error ?? new Error("no user");
+    }
 
     await resetDemoData(data.user.id);
 
     const supabase = await createClient();
-    const { error: otpError } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: data.properties.hashed_token });
+    const { error: otpError } = await supabase.auth.verifyOtp({ type: "email", token_hash: data.properties.hashed_token });
     if (otpError) throw otpError;
 
     return NextResponse.redirect(`${origin}/dashboard?demo=1`, 303);
