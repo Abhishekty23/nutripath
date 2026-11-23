@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Leaf, LogOut } from "lucide-react";
 import { signOut } from "@/app/auth/actions";
+import AdminNav from "@/components/admin/AdminNav";
 
 // Top bar + container for logged-in pages (user dashboard and admin).
 export default function DashboardShell({
@@ -12,6 +13,7 @@ export default function DashboardShell({
   badge?: string;
   children: React.ReactNode;
 }) {
+  const isAdmin = badge === "Admin";
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
@@ -39,6 +41,7 @@ export default function DashboardShell({
             </form>
           </div>
         </div>
+        {isAdmin && <AdminNav />}
       </header>
       <main className="mx-auto max-w-6xl px-5 py-10">{children}</main>
     </div>
