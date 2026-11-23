@@ -15,7 +15,11 @@ export default function LoginForm() {
   const params = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
-    params.get("error") === "confirm" ? "That confirmation link is invalid or expired. Please log in or sign up again." : null,
+    params.get("error") === "confirm"
+      ? "That confirmation link is invalid or expired. Please log in or sign up again."
+      : params.get("error") === "demo"
+        ? "The demo is unavailable right now. Please try again in a minute."
+        : null,
   );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
