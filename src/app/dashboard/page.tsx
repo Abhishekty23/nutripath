@@ -95,7 +95,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
   return (
     <DashboardShell name={name}>
-      <Reveal>
+      <Reveal fast>
         <p className="text-sm font-semibold uppercase tracking-widest text-emerald-600">My dashboard</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">Hi {name.split(" ")[0]} 👋</h1>
         <p className="mt-2 text-slate-600">Here&apos;s an overview of your nutrition journey.</p>
@@ -118,7 +118,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
       <div className="mt-8 grid gap-5 sm:grid-cols-3">
         {cards.map((c, i) => (
-          <Reveal key={c.label} delay={0.08 * i} y={20}>
+          <Reveal fast key={c.label} delay={0.08 * i} y={20}>
             <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-slate-500">{c.label}</p>
@@ -133,7 +133,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         ))}
       </div>
 
-      <Reveal delay={0.1}>
+      <Reveal fast delay={0.1}>
         <section id="progress" className="mt-8 scroll-mt-24 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 sm:p-8">
           <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
             <TrendingDown size={20} className="text-emerald-600" /> My progress
@@ -144,7 +144,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       </Reveal>
 
       {dietPlans.length > 0 && (
-        <Reveal delay={0.12}>
+        <Reveal fast delay={0.12}>
           <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 sm:p-8">
             <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
               <Salad size={20} className="text-emerald-600" /> My diet plans
@@ -172,7 +172,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       )}
 
       {bookings.length > 0 ? (
-        <Reveal delay={0.15}>
+        <Reveal fast delay={0.15}>
           <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 sm:p-8">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900">My bookings</h2>
@@ -240,7 +240,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           </section>
         </Reveal>
       ) : (
-        <Reveal delay={0.2}>
+        <Reveal fast delay={0.2}>
           <div className="mt-8 flex flex-col items-start justify-between gap-6 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-700 p-8 text-white md:flex-row md:items-center">
             <div>
               <h2 className="text-2xl font-bold">Book your first consultation</h2>
