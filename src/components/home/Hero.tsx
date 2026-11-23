@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowRight, CalendarCheck, Check, Flame, Salad, Sparkles, Star } from "lucide-react";
 import CountUp from "@/components/ui/CountUp";
@@ -88,12 +89,12 @@ export default function Hero() {
               View Plans
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
             </a>
-            <a
-              href="#how-it-works"
+            <Link
+              href="/login"
               className="rounded-full bg-white px-7 py-4 font-semibold text-slate-800 shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-0.5 hover:text-emerald-700 hover:ring-emerald-300"
             >
-              How it works
-            </a>
+              Try the live demo
+            </Link>
           </motion.div>
 
           <motion.div variants={item} className="mt-12 flex items-center gap-5">
