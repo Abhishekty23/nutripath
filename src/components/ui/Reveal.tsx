@@ -8,10 +8,24 @@ type Props = {
   y?: number;
   x?: number;
   className?: string;
+  /** Quicker, subtler animation for app screens (dashboards) */
+  fast?: boolean;
 };
 
 // Fades + slides its children in when they scroll into view (once).
-export default function Reveal({ children, delay = 0, y = 30, x = 0, className }: Props) {
+export default function Reveal({ children, delay = 0, y = 30, x = 0, className, fast = false }: Props) {
+  if (fast) {
+    return (
+      <motion.div
+        className={className}
+        initial={{ opacity: 0, y: Math.min(y, 10), x: 0 }}
+        animate={{ opacity: 1, y: 0, x: 0 }}
+        transition={{ duration: 0.25, delay: Math.min(delay, 0.1) * 0.5, ease: "easeOut" }}
+      >
+        {children}
+      </motion.div>
+    );
+  }
   return (
     <motion.div
       className={className}
