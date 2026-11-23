@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowRight, CalendarDays, Clock, Salad, TrendingDown } from "lucide-react";
+import { ArrowRight, CalendarClock, CalendarDays, Clock, Salad, TrendingDown, X } from "lucide-react";
 import { getCurrentUser } from "@/lib/supabase/server";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import FormAlert from "@/components/auth/FormAlert";
 import Reveal from "@/components/ui/Reveal";
+import ActionButton from "@/components/admin/ActionButton";
+import WeightTracker, { type ProgressLog } from "@/components/dashboard/WeightTracker";
+import { dayKeyIST } from "@/lib/format";
+import { cancelMyBooking } from "./actions";
 
 // Always rendered per request: depends on who is logged in.
 export const instant = false;
@@ -16,6 +20,7 @@ type BookingRow = {
   id: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   amount: number;
+  reschedule_count: number;
   plans: { title: string } | null;
   slots: { starts_at: string } | null;
 };
@@ -32,6 +37,15 @@ function isFuture(iso: string) {
   return new Date(iso).getTime() > Date.now();
 }
 
+// Clients can change a booking up to 24 hours before it starts
+function canChange(iso: string) {
+  return new Date(iso).getTime() - Date.now() > 24 * 60 * 60 * 1000;
+}
+
+function todayIST() {
+  return dayKeyIST(new Date().toISOString());
+}
+
 const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
   new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", ...opts }).format(new Date(iso));
 
@@ -40,13 +54,16 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   if (!user) redirect("/login?next=/dashboard");
   if (profile?.role === "admin") redirect("/admin");
 
-  const { booked } = await searchParams;
+  const sp = await searchParams;
+  const booked = sp.booked;
+  const msg = typeof sp.msg === "string" ? sp.msg : null;
+  const error = typeof sp.error === "string" ? sp.error : null;
   const name = profile?.full_name || user.email?.split("@")[0] || "there";
 
-  const [{ data: bookingsData }, { data: dietPlansData }] = await Promise.all([
+  const [{ data: bookingsData }, { data: dietPlansData }, { data: logsData }] = await Promise.all([
     supabase
       .from("bookings")
-      .select("id, status, amount, plans(title), slots(starts_at)")
+      .select("id, status, amount, reschedule_count, plans(title), slots(starts_at)")
       .neq("status", "cancelled")
       .order("created_at", { ascending: false })
       .returns<BookingRow[]>(),
@@ -55,7 +72,11 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       .select("id, title, meal_text, created_at")
       .order("created_at", { ascending: false })
       .returns<{ id: string; title: string; meal_text: string | null; created_at: string }[]>(),
+    supabase.from("progress_logs").select("id, weight_kg, logged_on").order("logged_on").returns<ProgressLog[]>(),
   ]);
+  const logs = logsData ?? [];
+  const weightChange =
+    logs.length >= 2 ? Math.round((Number(logs[logs.length - 1].weight_kg) - Number(logs[0].weight_kg)) * 10) / 10 : null;
   const dietPlans = dietPlansData ?? [];
   const bookings = bookingsData ?? [];
   const upcoming = bookings.filter((b) => b.status === "confirmed" && b.slots && isFuture(b.slots.starts_at));
@@ -63,7 +84,12 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   const cards = [
     { label: "Upcoming", value: upcoming.length, icon: CalendarDays, hint: "Confirmed consultations" },
     { label: "Diet plans", value: dietPlans.length, icon: Salad, hint: "Plans from your nutritionist" },
-    { label: "Progress", value: "-", icon: TrendingDown, hint: "Weight tracking arrives soon" },
+    {
+      label: "Progress",
+      value: weightChange === null ? "-" : `${weightChange > 0 ? "+" : ""}${weightChange} kg`,
+      icon: TrendingDown,
+      hint: logs.length ? `${logs.length} weigh-in${logs.length === 1 ? "" : "s"} logged` : "Log your first weigh-in below",
+    },
   ];
 
   return (
@@ -74,9 +100,12 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         <p className="mt-2 text-slate-600">Here&apos;s an overview of your nutrition journey.</p>
       </Reveal>
 
-      {booked && (
+      {(booked || msg || error) && (
         <div className="mt-6">
-          <FormAlert type="success" message="Payment received. Your consultation is confirmed!" />
+          <FormAlert
+            type={error ? "error" : "success"}
+            message={error ?? msg ?? "Payment received. Your consultation is confirmed! A confirmation email is on its way."}
+          />
         </div>
       )}
 
@@ -96,6 +125,16 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           </Reveal>
         ))}
       </div>
+
+      <Reveal delay={0.1}>
+        <section id="progress" className="mt-8 scroll-mt-24 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 sm:p-8">
+          <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+            <TrendingDown size={20} className="text-emerald-600" /> My progress
+          </h2>
+          <p className="mt-1 mb-6 text-sm text-slate-500">Weigh yourself once a week, same time of day, and log it here. Your nutritionist sees it too.</p>
+          <WeightTracker logs={logs} today={todayIST()} />
+        </section>
+      </Reveal>
 
       {dietPlans.length > 0 && (
         <Reveal delay={0.12}>
@@ -152,11 +191,41 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 pl-16 sm:pl-0">
-                    <span className="text-sm font-semibold text-slate-700">₹{b.amount.toLocaleString("en-IN")}</span>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${STATUS[b.status].className}`}>
-                      {STATUS[b.status].label}
-                    </span>
+                  <div className="flex flex-col items-start gap-2 pl-16 sm:items-end sm:pl-0">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-slate-700">₹{b.amount.toLocaleString("en-IN")}</span>
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${STATUS[b.status].className}`}>
+                        {STATUS[b.status].label}
+                      </span>
+                    </div>
+                    {b.status === "confirmed" && b.slots && isFuture(b.slots.starts_at) &&
+                      (canChange(b.slots.starts_at) ? (
+                        <div className="flex items-center gap-2">
+                          {b.reschedule_count < 2 && (
+                            <Link
+                              href={`/dashboard/bookings/${b.id}`}
+                              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200 transition hover:bg-emerald-50"
+                            >
+                              <CalendarClock size={14} /> Reschedule
+                            </Link>
+                          )}
+                          <details className="group relative">
+                            <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-red-600 ring-1 ring-red-100 transition hover:bg-red-50">
+                              <X size={14} /> Cancel
+                            </summary>
+                            <div className="absolute right-0 z-10 mt-2 w-64 rounded-xl bg-white p-4 text-left shadow-xl ring-1 ring-slate-200">
+                              <p className="text-sm font-semibold text-slate-900">Cancel this consultation?</p>
+                              <p className="mt-1 text-xs text-slate-500">The time slot is released. Any refund due goes back to your original payment method.</p>
+                              <form action={cancelMyBooking} className="mt-3">
+                                <input type="hidden" name="id" value={b.id} />
+                                <ActionButton variant="danger" className="w-full !py-1.5 text-xs">Yes, cancel booking</ActionButton>
+                              </form>
+                            </div>
+                          </details>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400">Changes close 24h before the call</p>
+                      ))}
                   </div>
                 </li>
               ))}
