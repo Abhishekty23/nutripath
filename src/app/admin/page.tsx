@@ -62,7 +62,7 @@ export default async function AdminPage() {
 
   return (
     <DashboardShell name={profile.full_name || "Admin"} badge="Admin">
-      <Reveal>
+      <Reveal fast>
         <p className="text-sm font-semibold uppercase tracking-widest text-emerald-600">Admin panel</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
           Hello, {(profile.full_name || "there").split(" ")[0]}
@@ -72,7 +72,7 @@ export default async function AdminPage() {
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s, i) => (
-          <Reveal key={s.label} delay={0.06 * i} y={20}>
+          <Reveal fast key={s.label} delay={0.06 * i} y={20}>
             <Link href={s.href} className="block rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-slate-500">{s.label}</p>
@@ -107,7 +107,7 @@ export default async function AdminPage() {
         </div>
       )}
 
-      <Reveal delay={0.2}>
+      <Reveal fast delay={0.2}>
         <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 sm:p-8">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-900">Upcoming consultations</h2>
