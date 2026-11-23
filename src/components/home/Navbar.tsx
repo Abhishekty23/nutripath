@@ -33,12 +33,12 @@ export default function Navbar() {
             : "bg-transparent py-4"
         }`}
       >
-        <a href="#" className="group flex items-center gap-2.5 text-xl font-bold tracking-tight text-slate-900">
+        <Link href="/" className="group flex items-center gap-2.5 text-xl font-bold tracking-tight text-slate-900">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-600/30 transition-transform duration-300 group-hover:rotate-12">
             <Leaf size={19} />
           </span>
           {site.name}
-        </a>
+        </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => (
@@ -60,13 +60,13 @@ export default function Navbar() {
         >
           Log in
         </Link>
-        <a
-          href="#plans"
+        <Link
+          href="/plans"
           className="group hidden items-center gap-1.5 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-600/30 md:inline-flex"
         >
           Book Now
           <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
-        </a>
+        </Link>
         </div>
 
         <button
@@ -112,13 +112,13 @@ export default function Navbar() {
               >
                 Log in
               </Link>
-              <a
-                href="#plans"
+              <Link
+                href="/plans"
                 onClick={() => setOpen(false)}
                 className="block rounded-xl bg-emerald-600 py-3 text-center font-semibold text-white"
               >
                 Book Now
-              </a>
+              </Link>
             </div>
           </motion.div>
         )}
