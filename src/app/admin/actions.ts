@@ -1,5 +1,7 @@
 "use server";
 
+import { after } from "next/server";
+import { sendBookingEmail } from "@/lib/email";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/supabase/server";
@@ -37,6 +39,8 @@ export async function setBookingStatus(formData: FormData) {
   if (status === "cancelled" && booking.slot_id) {
     await supabase.from("slots").update({ is_booked: false }).eq("id", booking.slot_id);
   }
+
+  if (status === "cancelled" && booking.status === "confirmed") after(() => sendBookingEmail("cancelled", id));
 
   revalidatePath("/admin", "layout");
   back(returnTo, { msg: status === "cancelled" ? "Booking cancelled and slot freed." : "Booking updated." });
