@@ -32,14 +32,17 @@ export type Profile = {
   created_at: string;
 };
 
+export type SessionUser = { id: string; email?: string };
+
 // Returns the logged-in user and their profile, or nulls if logged out.
 export async function getCurrentUser() {
   const supabase = await createClient();
   if (!isSupabaseConfigured) return { supabase, user: null, profile: null };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { supabase, user: null, profile: null };
+  // getClaims() checks the login token locally (no extra trip to Supabase on most requests)
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (!claims?.sub) return { supabase, user: null, profile: null };
+  const user: SessionUser = { id: claims.sub, email: typeof claims.email === "string" ? claims.email : undefined };
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single<Profile>();
   return { supabase, user, profile };
