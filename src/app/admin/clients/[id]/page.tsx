@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, ClipboardList, Mail, Phone, Salad, Trash2 } from "lucide-react";
+import { ArrowLeft, ClipboardList, Mail, Phone, Salad, Trash2, TrendingDown } from "lucide-react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import AdminHeader from "@/components/admin/AdminHeader";
 import ActionButton from "@/components/admin/ActionButton";
 import DietPlanForm from "@/components/admin/DietPlanForm";
+import WeightTracker, { type ProgressLog } from "@/components/dashboard/WeightTracker";
 import { requireAdminPage } from "@/lib/admin-guard";
-import { fmtDateTime, fmtIST, rupees, STATUS_STYLE, type BookingStatus } from "@/lib/format";
+import { dayKeyIST, fmtDateTime, fmtIST, rupees, STATUS_STYLE, type BookingStatus } from "@/lib/format";
 import { deleteDietPlan } from "../../actions";
 
 export const instant = false;
@@ -42,6 +43,10 @@ type DietPlan = { id: string; title: string; meal_text: string | null; created_a
 
 const DIET_LABEL: Record<string, string> = { veg: "Vegetarian", "non-veg": "Non-vegetarian", vegan: "Vegan", eggetarian: "Eggetarian" };
 
+function todayIST() {
+  return dayKeyIST(new Date().toISOString());
+}
+
 function bmi(h?: number | null, w?: number | null) {
   if (!h || !w) return null;
   return (w / (h / 100) ** 2).toFixed(1);
@@ -53,7 +58,7 @@ export default async function ClientDetailPage({ params, searchParams }: PagePro
   const sp = await searchParams;
   const msg = typeof sp.msg === "string" ? sp.msg : undefined;
 
-  const [{ data: client }, { data: bookingsData }, { data: plansData }] = await Promise.all([
+  const [{ data: client }, { data: bookingsData }, { data: plansData }, { data: logsData }] = await Promise.all([
     supabase.from("profiles").select("id, full_name, email, phone, created_at").eq("id", id).maybeSingle(),
     supabase
       .from("bookings")
@@ -63,6 +68,7 @@ export default async function ClientDetailPage({ params, searchParams }: PagePro
       .order("created_at", { ascending: false })
       .returns<Booking[]>(),
     supabase.from("diet_plans").select("id, title, meal_text, created_at").eq("user_id", id).order("created_at", { ascending: false }).returns<DietPlan[]>(),
+    supabase.from("progress_logs").select("id, weight_kg, logged_on").eq("user_id", id).order("logged_on").returns<ProgressLog[]>(),
   ]);
   if (!client) notFound();
 
@@ -148,8 +154,15 @@ export default async function ClientDetailPage({ params, searchParams }: PagePro
           </section>
         </div>
 
-        {/* Right: diet plans */}
+        {/* Right: progress + diet plans */}
         <div className="space-y-6">
+          <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 sm:p-8">
+            <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-slate-900">
+              <TrendingDown size={20} className="text-emerald-600" /> Weight progress
+            </h2>
+            <WeightTracker logs={logsData ?? []} today={todayIST()} readOnly />
+          </section>
+
           <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 sm:p-8">
             <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
               <Salad size={20} className="text-emerald-600" /> Write a diet plan
