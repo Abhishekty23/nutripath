@@ -63,10 +63,19 @@ export async function startPayment(bookingId: string): Promise<Result<{ orderId:
 
   try {
     const order = await createRazorpayOrder(booking.amount, booking.id);
-    const { error } = await createAdminClient().from("bookings").update({ order_id: order.id }).eq("id", booking.id);
-    if (error) throw error;
+    // .select() returns the updated row, so we can tell if the update really happened
+    const { data: updated, error } = await createAdminClient()
+      .from("bookings")
+      .update({ order_id: order.id })
+      .eq("id", booking.id)
+      .select("id");
+    if (error || !updated?.length) {
+      console.error("startPayment: could not save order id. Check SUPABASE_SECRET_KEY.", error?.message);
+      return { ok: false, error: "Payments are temporarily unavailable (server setup). Please try again later." };
+    }
     return { ok: true, orderId: order.id, amount: order.amount, keyId: razorpayKeyId };
-  } catch {
+  } catch (e) {
+    console.error("startPayment failed:", e instanceof Error ? e.message : e);
     return { ok: false, error: "Could not start the payment. Please try again." };
   }
 }
@@ -94,7 +103,8 @@ export async function confirmPayment(input: {
     .maybeSingle();
 
   if (!booking || booking.user_id !== user.id || booking.order_id !== input.orderId) {
-    return { ok: false, error: "Booking not found." };
+    console.error("confirmPayment: booking/order mismatch", { found: Boolean(booking) });
+    return { ok: false, error: "We couldn't match this payment to your booking. Please contact us with your payment ID." };
   }
   if (booking.status === "confirmed") return { ok: true };
 
