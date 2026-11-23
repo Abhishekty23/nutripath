@@ -43,21 +43,26 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   const { booked } = await searchParams;
   const name = profile?.full_name || user.email?.split("@")[0] || "there";
 
-  const [{ data: bookingsData }, { count: planCount }] = await Promise.all([
+  const [{ data: bookingsData }, { data: dietPlansData }] = await Promise.all([
     supabase
       .from("bookings")
       .select("id, status, amount, plans(title), slots(starts_at)")
       .neq("status", "cancelled")
       .order("created_at", { ascending: false })
       .returns<BookingRow[]>(),
-    supabase.from("diet_plans").select("*", { count: "exact", head: true }),
+    supabase
+      .from("diet_plans")
+      .select("id, title, meal_text, created_at")
+      .order("created_at", { ascending: false })
+      .returns<{ id: string; title: string; meal_text: string | null; created_at: string }[]>(),
   ]);
+  const dietPlans = dietPlansData ?? [];
   const bookings = bookingsData ?? [];
   const upcoming = bookings.filter((b) => b.status === "confirmed" && b.slots && isFuture(b.slots.starts_at));
 
   const cards = [
     { label: "Upcoming", value: upcoming.length, icon: CalendarDays, hint: "Confirmed consultations" },
-    { label: "Diet plans", value: planCount ?? 0, icon: Salad, hint: "Plans from your nutritionist" },
+    { label: "Diet plans", value: dietPlans.length, icon: Salad, hint: "Plans from your nutritionist" },
     { label: "Progress", value: "-", icon: TrendingDown, hint: "Weight tracking arrives soon" },
   ];
 
@@ -91,6 +96,34 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           </Reveal>
         ))}
       </div>
+
+      {dietPlans.length > 0 && (
+        <Reveal delay={0.12}>
+          <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 sm:p-8">
+            <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+              <Salad size={20} className="text-emerald-600" /> My diet plans
+            </h2>
+            <div className="mt-6 space-y-4">
+              {dietPlans.map((p, i) => (
+                <details key={p.id} open={i === 0} className="group rounded-2xl bg-emerald-50/50 p-5 ring-1 ring-emerald-100">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+                    <span>
+                      <span className="block font-semibold text-slate-900">{p.title}</span>
+                      <span className="text-xs text-slate-500">
+                        From your nutritionist · {fmt(p.created_at, { day: "numeric", month: "short", year: "numeric" })}
+                      </span>
+                    </span>
+                    <span className="text-sm font-semibold text-emerald-700 group-open:hidden">Open</span>
+                  </summary>
+                  {p.meal_text && (
+                    <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-700">{p.meal_text}</pre>
+                  )}
+                </details>
+              ))}
+            </div>
+          </section>
+        </Reveal>
+      )}
 
       {bookings.length > 0 ? (
         <Reveal delay={0.15}>
