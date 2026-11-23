@@ -1,12 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { supabaseKey, supabaseUrl } from "./config";
+import { isSupabaseConfigured, supabaseKey, supabaseUrl } from "./config";
 
 // Supabase client for Server Components, Server Actions and Route Handlers.
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(supabaseUrl, supabaseKey, {
+  // Placeholder values keep the client from throwing when keys are missing; getCurrentUser checks first.
+  return createServerClient(supabaseUrl || "https://placeholder.supabase.co", supabaseKey || "placeholder", {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -34,6 +35,7 @@ export type Profile = {
 // Returns the logged-in user and their profile, or nulls if logged out.
 export async function getCurrentUser() {
   const supabase = await createClient();
+  if (!isSupabaseConfigured) return { supabase, user: null, profile: null };
   const {
     data: { user },
   } = await supabase.auth.getUser();
