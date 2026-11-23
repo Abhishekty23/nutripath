@@ -10,7 +10,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS · Supabase (auth + Postgres)
 ## Progress
 - [x] Day 1: Landing page (responsive)
 - [x] Day 2: Auth + database (Supabase, Row Level Security, login/signup, protected dashboards)
-- [ ] Day 3: Plans pages + admin plans manager
+- [x] Day 3: Plans from the database, plan detail pages, admin plans manager (create, edit, hide)
 - [ ] Day 4: Booking flow + payments
 - [ ] Day 5: Admin dashboard
 - [ ] Day 6: User dashboard + emails
