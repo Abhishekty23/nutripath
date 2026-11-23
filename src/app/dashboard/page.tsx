@@ -111,7 +111,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         <div className="mt-6">
           <FormAlert
             type={error ? "error" : "success"}
-            message={error ?? msg ?? "Payment received. Your consultation is confirmed! A confirmation email is on its way."}
+            message={error ?? msg ?? "Payment received. Your consultation is confirmed!"}
           />
         </div>
       )}

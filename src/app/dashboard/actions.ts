@@ -51,7 +51,7 @@ export async function rescheduleMyBooking(formData: FormData) {
 
   after(() => sendBookingEmail("rescheduled", id));
   revalidatePath("/admin", "layout");
-  back("/dashboard", { msg: "Booking moved to the new time. We've emailed you the details." });
+  back("/dashboard", { msg: "Booking moved to the new time." });
 }
 
 // ---------------- Weight tracker ----------------
