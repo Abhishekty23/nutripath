@@ -11,7 +11,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS · Supabase (auth + Postgres)
 - [x] Day 1: Landing page (responsive)
 - [x] Day 2: Auth + database (Supabase, Row Level Security, login/signup, protected dashboards)
 - [x] Day 3: Plans from the database, plan detail pages, admin plans manager (create, edit, hide)
-- [ ] Day 4: Booking flow + payments
+- [x] Day 4: Booking flow (slot picker, health form) with Razorpay payments verified on the server
 - [ ] Day 5: Admin dashboard
 - [ ] Day 6: User dashboard + emails
 - [ ] Day 7: Polish, demo logins, screenshots
