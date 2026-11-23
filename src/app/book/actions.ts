@@ -1,7 +1,9 @@
 "use server";
 
+import { after } from "next/server";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { createAdminClient, isAdminClientConfigured } from "@/lib/supabase/admin";
+import { sendBookingEmail } from "@/lib/email";
 import { createRazorpayOrder, isRazorpayConfigured, razorpayKeyId, verifyRazorpaySignature } from "@/lib/razorpay";
 
 export type HealthDetails = {
@@ -122,5 +124,7 @@ export async function confirmPayment(input: {
     };
   }
 
+  // Send the confirmation email after the response, so the client isn't kept waiting
+  after(() => sendBookingEmail("confirmed", booking.id));
   return { ok: true };
 }
