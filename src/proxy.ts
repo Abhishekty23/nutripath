@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isSupabaseConfigured, supabaseKey, supabaseUrl } from "@/lib/supabase/config";
 
-const PROTECTED = ["/dashboard", "/admin"];
+const PROTECTED = ["/dashboard", "/admin", "/book"];
 const AUTH_PAGES = ["/login", "/signup"];
 
 // Runs before every page: keeps the login session fresh and guards private pages.
@@ -50,5 +50,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/login", "/signup", "/auth/:path*"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/book/:path*", "/login", "/signup", "/auth/:path*"],
 };
