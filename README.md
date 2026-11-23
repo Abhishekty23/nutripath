@@ -9,7 +9,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS · Supabase (auth + Postgres)
 
 ## Progress
 - [x] Day 1: Landing page (responsive)
-- [ ] Day 2: Auth + database
+- [x] Day 2: Auth + database (Supabase, Row Level Security, login/signup, protected dashboards)
 - [ ] Day 3: Plans pages + admin plans manager
 - [ ] Day 4: Booking flow + payments
 - [ ] Day 5: Admin dashboard
@@ -17,6 +17,9 @@ Next.js (App Router) · TypeScript · Tailwind CSS · Supabase (auth + Postgres)
 - [ ] Day 7: Polish, demo logins, screenshots
 
 ## Run locally
+1. Copy `.env.example` to `.env.local` and add your Supabase publishable key
+2. Run the SQL in `supabase/schema.sql` once in Supabase → SQL Editor
+
 ```bash
 npm install
 npm run dev
