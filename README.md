@@ -13,7 +13,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS · Supabase (auth + Postgres)
 - [x] Day 3: Plans from the database, plan detail pages, admin plans manager (create, edit, hide)
 - [x] Day 4: Booking flow (slot picker, health form) with Razorpay payments verified on the server
 - [x] Day 5: Admin dashboard (bookings, availability, clients with health forms, diet plans)
-- [ ] Day 6: User dashboard + emails
+- [x] Day 6: Client self-service (cancel / reschedule with a 24-hour rule), weight tracker with chart, booking emails (Resend)
 - [ ] Day 7: Polish, demo logins, screenshots
 
 ## Run locally
