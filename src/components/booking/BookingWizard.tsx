@@ -205,8 +205,8 @@ export default function BookingWizard({ plan, customer }: { plan: Plan; customer
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-      <div>
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="min-w-0">
         {/* Progress */}
         <ol className="mb-8 flex items-center gap-2">
           {STEPS.map((label, i) => (
