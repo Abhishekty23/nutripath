@@ -9,11 +9,11 @@ export const site = {
 };
 
 export const navLinks = [
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Plans", href: "#plans" },
-  { label: "About", href: "#about" },
-  { label: "Reviews", href: "#testimonials" },
-  { label: "FAQ", href: "#faq" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Plans", href: "/plans" },
+  { label: "About", href: "/#about" },
+  { label: "Reviews", href: "/#testimonials" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 export const hero = {
