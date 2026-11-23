@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
 import { ArrowRight, Leaf, Menu, X } from "lucide-react";
 import { navLinks, site } from "@/lib/data";
@@ -52,6 +53,13 @@ export default function Navbar() {
           ))}
         </ul>
 
+        <div className="hidden items-center gap-2 md:flex">
+        <Link
+          href="/login"
+          className="rounded-full px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:text-emerald-700"
+        >
+          Log in
+        </Link>
         <a
           href="#plans"
           className="group hidden items-center gap-1.5 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-600/30 md:inline-flex"
@@ -59,6 +67,7 @@ export default function Navbar() {
           Book Now
           <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
         </a>
+        </div>
 
         <button
           className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100 md:hidden"
@@ -96,13 +105,21 @@ export default function Navbar() {
                 </motion.li>
               ))}
             </ul>
-            <a
-              href="#plans"
-              onClick={() => setOpen(false)}
-              className="mt-3 block rounded-xl bg-emerald-600 py-3 text-center font-semibold text-white"
-            >
-              Book Now
-            </a>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Link
+                href="/login"
+                className="block rounded-xl py-3 text-center font-semibold text-slate-800 ring-1 ring-slate-200"
+              >
+                Log in
+              </Link>
+              <a
+                href="#plans"
+                onClick={() => setOpen(false)}
+                className="block rounded-xl bg-emerald-600 py-3 text-center font-semibold text-white"
+              >
+                Book Now
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
