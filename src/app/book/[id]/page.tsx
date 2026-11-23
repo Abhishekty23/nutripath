@@ -6,6 +6,7 @@ import Navbar from "@/components/home/Navbar";
 import BookingWizard from "@/components/booking/BookingWizard";
 import { getPlan } from "@/lib/plans";
 import { getCurrentUser } from "@/lib/supabase/server";
+import { releaseExpiredHolds } from "@/lib/holds";
 
 // Depends on who is logged in, so it renders on every request.
 export const instant = false;
@@ -18,6 +19,7 @@ export default async function BookPage({ params }: PageProps<"/book/[id]">) {
 
   const { user, profile } = await getCurrentUser();
   if (!user) redirect(`/login?next=/book/${id}`);
+  await releaseExpiredHolds(); // free slots from unpaid bookings older than 15 minutes
 
   const customer = {
     name: profile?.full_name || user.email?.split("@")[0] || "",
