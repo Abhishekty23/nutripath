@@ -11,8 +11,11 @@ async function requireAdmin() {
   return supabase;
 }
 
+// Go back to the page we came from, adding a ?msg= or ?error= banner (keeps any existing ?filter=)
 function back(path: string, params: Record<string, string>): never {
-  redirect(`${path}?${new URLSearchParams(params).toString()}`);
+  const url = new URL(path, "http://localhost");
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  redirect(`${url.pathname}${url.search}`);
 }
 
 // ---------------- Bookings ----------------
